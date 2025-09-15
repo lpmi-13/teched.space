@@ -300,17 +300,24 @@ const staticHTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// Create build directory if it doesn't exist
+const buildDir = 'publish';
+if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir, { recursive: true });
+}
+
 // Write the static HTML file
 try {
-    fs.writeFileSync('index.html', staticHTML, 'utf8');
+    const outputPath = path.join(buildDir, 'index.html');
+    fs.writeFileSync(outputPath, staticHTML, 'utf8');
 
     // Get file size for reporting
-    const stats = fs.statSync('index.html');
+    const stats = fs.statSync(outputPath);
     const fileSizeInBytes = stats.size;
     const fileSizeInKB = (fileSizeInBytes / 1024).toFixed(1);
 
     console.log('✅ Static HTML file generated successfully!');
-    console.log(`📁 File: index.html (${fileSizeInKB} KB)`);
+    console.log(`📁 File: ${outputPath} (${fileSizeInKB} KB)`);
     console.log('🎯 Features included:');
     console.log('   • All CSS inlined (no external stylesheets)');
     console.log('   • Minimal JavaScript (just dynamic year)');
@@ -323,11 +330,11 @@ try {
 
     // Copy favicon for static deployment
     const faviconSource = 'src/app/favicon.ico';
-    const faviconDest = 'favicon.ico';
+    const faviconDest = path.join(buildDir, 'favicon.ico');
 
     if (fs.existsSync(faviconSource)) {
         fs.copyFileSync(faviconSource, faviconDest);
-        console.log('📱 Favicon copied to root directory for static deployment');
+        console.log('📱 Favicon copied to build directory for static deployment');
     } else {
         console.log('⚠️  Favicon not found at src/app/favicon.ico - you may need to copy it manually');
     }
